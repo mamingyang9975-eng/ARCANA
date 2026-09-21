@@ -1,0 +1,108 @@
+.journey-scene[data-theme="dark"] {
+  color: #f2eee6;
+  background: #050506;
+  color-scheme: dark;
+}
+
+.journey-scene[data-theme="dark"] .journey-atmosphere {
+  background: #050506;
+}
+
+.journey-scene[data-theme="dark"] .journey-atmosphere::after {
+  opacity: 0;
+}
+
+.journey-scene[data-theme="dark"] .journey-topbar button,
+.journey-scene[data-theme="dark"] .journey-deck-label {
+  color: #aaa9a4;
+}
+
+.journey-scene[data-theme="dark"] .journey-topbar button:hover {
+  color: #f7f4ed;
+}
+
+.journey-scene[data-theme="dark"] .journey-deck-label::before {
+  box-shadow: 0 0 12px color-mix(in srgb, var(--deck-accent) 50%, transparent);
+}
+
+.journey-scene[data-theme="dark"] .journey-hint {
+  color: #a5a49f;
+}
+
+.journey-scene[data-theme="dark"] .primary-button {
+  background: #f1eee5;
+  color: #171815;
+  box-shadow: 0 0 24px rgba(255, 247, 225, 0.055);
+  transition: background 160ms ease, opacity 150ms ease, transform 150ms ease;
+}
+
+.journey-scene[data-theme="dark"] .primary-button:hover:not(:disabled) {
+  background: #fffdf7;
+}
+
+.journey-scene[data-theme="dark"] .journey-secondary {
+  border-color: rgba(241, 238, 229, 0.24);
+  background: rgba(241, 238, 229, 0.035);
+  color: #d5d3cb;
+}
+
+.journey-scene[data-theme="dark"] .journey-secondary:hover:not(:disabled) {
+  border-color: rgba(241, 238, 229, 0.48);
+  background: rgba(241, 238, 229, 0.085);
+}
+
+.journey-scene[data-theme="dark"] button:focus-visible {
+  outline: 2px solid #e8dfc8;
+  outline-offset: 5px;
+}
+
+/* The room changes, while the paper and its ink retain their original palette. */
+.journey-scene[data-theme="dark"] .stack-cover,
+.journey-scene[data-theme="dark"] .card-face {
+  color: #171815;
+  color-scheme: light;
+}
+
+.journey-scene[data-theme="dark"] .stack-cover.deck-card.is-selected {
+  box-shadow:
+    0 20px 48px rgba(0, 0, 0, 0.38),
+    0 0 42px color-mix(in srgb, var(--deck-accent) 11%, transparent);
+}
+
+.journey-scene[data-theme="dark"] .card-front {
+  box-shadow: 0 20px 52px rgba(0, 0, 0, 0.46);
+}
+
+.journey-scene[data-theme="dark"] .journey-stack-motion {
+  animation: journey-night-arrival 650ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.journey-scene[data-phase="tunnel"] .journey-skip {
+  padding: 0 17px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(5, 5, 6, 0.64);
+  color: #f1eee7;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.journey-scene[data-phase="tunnel"] .journey-skip:hover {
+  border-color: rgba(255, 255, 255, 0.48);
+  background: rgba(5, 5, 6, 0.82);
+}
+
+.journey-scene[data-phase="tunnel"] .journey-skip:focus-visible {
+  outline: 2px solid #e8dfc8;
+  outline-offset: 5px;
+}
+
+@keyframes journey-night-arrival {
+  from { opacity: 0; transform: translateY(-28px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journey-scene[data-theme="dark"] .journey-stack-motion {
+    animation: none;
+  }
+}
