@@ -1,0 +1,615 @@
+.arcana-home.is-departing .topbar,
+.arcana-home.is-departing .home-intro,
+.arcana-home.is-departing .selection-footer,
+.arcana-home.is-departing .deck-card:not(.is-selected) {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 650ms ease;
+}
+
+.arcana-home.is-departing .deck-card.is-selected {
+  visibility: hidden;
+}
+
+.journey-scene {
+  position: fixed;
+  z-index: 10;
+  inset: 0;
+  isolation: isolate;
+  overflow: hidden;
+  color: #171815;
+}
+
+.journey-atmosphere {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 47%, color-mix(in srgb, var(--deck-soft) 66%, transparent), transparent 57%),
+    #f5f3ee;
+  pointer-events: none;
+}
+
+.journey-atmosphere::after {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(23, 24, 21, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23, 24, 21, 0.014) 1px, transparent 1px);
+  background-size: 90px 90px;
+  content: "";
+  mask-image: radial-gradient(ellipse at center, #000, transparent 66%);
+}
+
+.journey-scene[data-phase="centering"] .journey-atmosphere {
+  animation: journey-background var(--center-duration, 1200ms) both;
+}
+
+.journey-topbar {
+  position: absolute;
+  z-index: 4;
+  top: max(25px, env(safe-area-inset-top));
+  right: clamp(20px, 4vw, 64px);
+  left: clamp(20px, 4vw, 64px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  animation: journey-control-in 480ms 100ms both;
+}
+
+.journey-topbar button,
+.journey-skip {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #73746b;
+  cursor: pointer;
+  font-size: 12px;
+  transition: color 160ms ease;
+}
+
+.journey-topbar button:hover,
+.journey-skip:hover {
+  color: #171815;
+}
+
+.journey-deck-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #73746b;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.journey-deck-label::before {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--deck-accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--deck-accent) 28%, transparent);
+  content: "";
+}
+
+.journey-center {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  width: min(76vw, 310px, calc((100svh - 210px) * 0.7));
+  aspect-ratio: 0.7;
+  transform: translate(-50%, -50%);
+}
+
+.journey-stack-motion,
+.journey-stack {
+  position: absolute;
+  inset: 0;
+  transform-origin: center;
+}
+
+.journey-scene[data-phase="centering"] .journey-stack-motion {
+  animation: center-deck var(--center-duration, 1200ms) cubic-bezier(0.22, 0.7, 0.2, 1) both;
+  will-change: transform;
+}
+
+.stack-sheet {
+  position: absolute;
+  inset: 0;
+  border: 1px solid color-mix(in srgb, var(--deck-ink) 17%, transparent);
+  border-radius: 21px;
+  background: color-mix(in srgb, var(--deck-soft) 62%, #e6e2d9);
+  box-shadow: 0 4px 9px rgba(23, 24, 21, 0.045);
+  transform: translateY(calc(var(--sheet-index) * 5px)) scale(calc(1 - var(--sheet-index) * 0.018));
+  transform-origin: center bottom;
+}
+
+.journey-scene[data-phase="centering"] .stack-sheet {
+  animation: stack-reveal var(--center-duration, 1200ms) both;
+}
+
+.stack-cover.deck-card,
+.stack-cover.deck-card.is-selected,
+.stack-cover.deck-card:hover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: clamp(16px, 2vw, 25px);
+  cursor: default;
+  transform: none;
+}
+
+.journey-stack .deck-art,
+.drawn-card .deck-art {
+  min-height: 0;
+}
+
+.journey-stack .art-core,
+.drawn-card .art-core {
+  width: clamp(46px, 10svh, 84px);
+}
+
+.journey-stack .deck-card-copy strong {
+  font-size: clamp(23px, 3.5svh, 31px);
+}
+
+.journey-stack .deck-card-copy > span {
+  font-size: 11px;
+}
+
+.journey-stack .card-kicker,
+.drawn-card .card-kicker {
+  gap: 8px;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+}
+
+.journey-stack .selection-check {
+  display: none;
+}
+
+.journey-scene[data-phase="ritual"] .journey-stack {
+  animation: ritual-deck var(--ritual-duration, 3000ms) both;
+  will-change: transform, opacity, filter;
+}
+
+.journey-scene[data-phase="ritual"] .stack-cover {
+  animation: ritual-illumination var(--ritual-duration, 3000ms) both;
+}
+
+.journey-halo {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: min(80vw, 540px);
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--deck-accent) 22%, transparent);
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--deck-accent) 22%, transparent) 0%, color-mix(in srgb, var(--deck-soft) 78%, transparent) 34%, transparent 72%);
+  box-shadow:
+    0 0 55px color-mix(in srgb, var(--deck-accent) 16%, transparent),
+    0 0 75px color-mix(in srgb, var(--deck-accent) 12%, transparent) inset;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) scale(0.4);
+}
+
+.journey-halo::after {
+  position: absolute;
+  inset: 15%;
+  border: 1px solid color-mix(in srgb, var(--deck-accent) 20%, transparent);
+  border-radius: 50%;
+  content: "";
+}
+
+.journey-scene[data-phase="ritual"] .journey-halo {
+  animation: ritual-halo var(--ritual-duration, 3000ms) both;
+}
+
+.journey-copy {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.journey-copy p {
+  margin: 0;
+  color: var(--deck-ink);
+  font-family: Georgia, "Songti SC", SimSun, serif;
+  font-size: clamp(25px, 3.6vw, 42px);
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.journey-scene[data-phase="ritual"] .journey-copy {
+  animation: ritual-message var(--ritual-duration, 3000ms) both;
+}
+
+.journey-controls {
+  position: absolute;
+  z-index: 5;
+  right: clamp(20px, 4vw, 64px);
+  bottom: max(32px, env(safe-area-inset-bottom));
+  left: clamp(20px, 4vw, 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  animation: journey-control-in 420ms both;
+}
+
+.journey-controls .primary-button {
+  width: auto;
+  min-width: 180px;
+}
+
+.journey-controls > button,
+.journey-action-row {
+  animation: journey-control-in 420ms both;
+}
+
+.journey-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.journey-scene[data-phase="centered"] .journey-controls,
+.journey-scene[data-phase="ritual"] .journey-controls,
+.journey-scene[data-phase="tunnel"] .journey-controls {
+  justify-content: flex-end;
+}
+
+.journey-secondary {
+  display: inline-flex;
+  min-width: 125px;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 20px;
+  border: 1px solid rgba(23, 24, 21, 0.18);
+  border-radius: 999px;
+  background: rgba(245, 243, 238, 0.75);
+  color: #575a51;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.journey-secondary:hover:not(:disabled) {
+  border-color: rgba(23, 24, 21, 0.35);
+  background: #efede6;
+}
+
+.journey-controls button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.journey-hint {
+  position: absolute;
+  z-index: 3;
+  right: 20px;
+  bottom: calc(100% + 14px);
+  left: 20px;
+  margin: 0;
+  color: #7e7f76;
+  font-size: 11px;
+  letter-spacing: 0.035em;
+  line-height: 1.6;
+  text-align: center;
+  animation: journey-control-in 420ms both;
+}
+
+.drawn-card {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  perspective: 1300px;
+  pointer-events: none;
+}
+
+.card-rotator {
+  position: absolute;
+  inset: 0;
+  border-radius: 21px;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transform: translateY(-7px) rotateY(180deg);
+}
+
+.journey-scene[data-phase="drawing"] .card-rotator {
+  animation: lift-and-turn var(--draw-duration, 820ms) both;
+  will-change: transform;
+}
+
+.card-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+  padding: clamp(19px, 2.4vw, 28px);
+  border: 1px solid color-mix(in srgb, var(--deck-accent) 58%, #ccc7bb);
+  border-radius: 21px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.card-back {
+  background: var(--deck-soft);
+  box-shadow: 0 12px 32px rgba(23, 24, 21, 0.1);
+  transform: rotateY(0deg) translateZ(1px);
+}
+
+.card-front {
+  background:
+    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--deck-soft) 64%, transparent), transparent 60%),
+    #fffdf8;
+  box-shadow: 0 18px 42px rgba(23, 24, 21, 0.12);
+  transform: rotateY(180deg) translateZ(1px);
+}
+
+.card-front::after {
+  position: absolute;
+  inset: 8px;
+  border: 1px solid color-mix(in srgb, var(--deck-accent) 17%, transparent);
+  border-radius: 14px;
+  content: "";
+  pointer-events: none;
+}
+
+.drawn-card-meta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--deck-ink);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  line-height: 1.6;
+}
+
+.drawn-card-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  padding: 22px 0;
+}
+
+.drawn-card-content h1 {
+  margin: 0 0 21px;
+  color: #33352d;
+  font-family: Georgia, "Songti SC", SimSun, serif;
+  font-size: clamp(25px, 3.6svh, 32px);
+  font-weight: 400;
+  letter-spacing: 0.025em;
+  line-height: 1.35;
+  outline: none;
+}
+
+.drawn-card-eyebrow {
+  margin-bottom: 15px;
+  color: var(--deck-ink);
+  font-size: 10px;
+  letter-spacing: 0.07em;
+  line-height: 1.6;
+}
+
+.drawn-card-content p {
+  margin: 0;
+  color: #68695e;
+  font-size: clamp(12px, 1.8svh, 14px);
+  font-weight: 400;
+  line-height: 1.95;
+  white-space: pre-line;
+}
+
+.drawn-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(23, 24, 21, 0.1);
+  color: #858579;
+  font-size: 9px;
+  letter-spacing: 0.07em;
+  line-height: 1.5;
+}
+
+.journey-scene[data-phase="drawing"] .drawn-card-meta,
+.journey-scene[data-phase="drawing"] .drawn-card-content,
+.journey-scene[data-phase="drawing"] .drawn-card-footer {
+  animation: card-words-in var(--draw-duration, 820ms) both;
+}
+
+.journey-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+@keyframes journey-background {
+  0% { opacity: 0; }
+  28% { opacity: 0.28; }
+  75%, 100% { opacity: 1; }
+}
+
+@keyframes center-deck {
+  0%, 28% {
+    transform: translate(var(--origin-x, 0px), var(--origin-y, 0px)) scale(var(--origin-scale-x, 1), var(--origin-scale-y, 1));
+  }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes stack-reveal {
+  0%, 35% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes journey-control-in {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes ritual-deck {
+  0% { opacity: 1; transform: translateY(0) scale(1); filter: brightness(1); }
+  12% { opacity: 1; transform: translateY(-15px) scale(1.025) rotate(-1deg); filter: brightness(1.045); }
+  21% { opacity: 1; transform: translateY(-7px) scale(1.018) rotate(0.5deg); filter: brightness(1.07); }
+  33% { opacity: 0; transform: translateY(-38px) scale(0.965); filter: brightness(1.1); }
+  100% { opacity: 0; transform: translateY(-64px) scale(0.965); filter: brightness(1); }
+}
+
+@keyframes ritual-illumination {
+  0%, 100% {
+    box-shadow: 0 16px 38px rgba(23, 24, 21, 0.1), 0 0 34px color-mix(in srgb, var(--deck-accent) 32%, transparent), 0 0 76px color-mix(in srgb, var(--deck-accent) 16%, transparent);
+  }
+  18%, 36% {
+    box-shadow: 0 14px 38px rgba(23, 24, 21, 0.06), 0 0 46px color-mix(in srgb, var(--deck-accent) 60%, transparent), 0 0 135px color-mix(in srgb, var(--deck-accent) 40%, transparent);
+  }
+  70% {
+    box-shadow: 0 14px 38px rgba(23, 24, 21, 0.07), 0 0 54px color-mix(in srgb, var(--deck-accent) 33%, transparent), 0 0 95px color-mix(in srgb, var(--deck-accent) 22%, transparent);
+  }
+}
+
+@keyframes ritual-halo {
+  0%, 16% { opacity: 0; transform: translate(-50%, -50%) scale(0.32); }
+  38% { opacity: 0.86; transform: translate(-50%, -50%) scale(0.8); }
+  65% { opacity: 0.75; transform: translate(-50%, -50%) scale(1.15); }
+  90%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.55); }
+}
+
+@keyframes ritual-message {
+  0%, 30% { opacity: 0; transform: translateY(9px); }
+  42%, 80% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+
+.journey-tunnel {
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: #050506;
+}
+
+.journey-scene[data-phase="tunnel"] .journey-center {
+  visibility: hidden;
+}
+
+.journey-scene[data-phase="tunnel"] .journey-controls {
+  z-index: 7;
+  animation: tunnel-controls var(--tunnel-duration, 4000ms) both;
+}
+
+@keyframes tunnel-controls {
+  0%, 70% { opacity: 1; }
+  79%, 100% { opacity: 0; }
+}
+
+@keyframes lift-and-turn {
+  0% { transform: translateY(0) rotateY(0deg) scale(1); animation-timing-function: cubic-bezier(0.2, 0.7, 0.25, 1); }
+  28% { transform: translateY(-25px) rotateY(0deg) scale(1.018); animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+  78% { transform: translateY(-11px) rotateY(180deg) scale(1.01); animation-timing-function: ease-out; }
+  100% { transform: translateY(-7px) rotateY(180deg) scale(1); }
+}
+
+@keyframes card-words-in {
+  0%, 78% { opacity: 0; transform: translateY(5px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 620px) {
+  .journey-topbar { top: max(14px, env(safe-area-inset-top)); }
+  .journey-deck-label { font-size: 9px; }
+  .journey-atmosphere::after { background-size: 64px 64px; }
+  .journey-controls { right: 20px; bottom: max(26px, env(safe-area-inset-bottom)); left: 20px; gap: 10px; }
+  .journey-controls .primary-button { min-width: 158px; gap: 20px; }
+  .journey-secondary { min-width: 118px; padding: 0 17px; }
+  .journey-action-row { gap: 10px; }
+  .journey-hint { font-size: 10px; }
+  .journey-copy p { font-size: clamp(23px, 6.5vw, 31px); letter-spacing: 0.12em; }
+  .stack-cover.deck-card { padding: 19px; border-radius: 20px; }
+}
+
+@media (max-height: 620px) {
+  .journey-center { width: min(64vw, 270px, calc((100svh - 165px) * 0.7)); }
+  .journey-topbar { top: max(10px, env(safe-area-inset-top)); }
+  .journey-topbar button { min-height: 32px; }
+  .journey-controls { bottom: max(18px, env(safe-area-inset-bottom)); }
+  .journey-controls .primary-button,
+  .journey-secondary { min-height: 42px; height: 42px; }
+  .journey-hint { bottom: calc(100% + 9px); }
+  .stack-cover.deck-card { padding: 14px; }
+  .journey-stack .deck-card-copy { gap: 4px; }
+  .journey-stack .deck-card-copy strong { font-size: 22px; }
+  .journey-stack .deck-card-copy > span { font-size: 10px; }
+  .journey-stack .card-kicker,
+  .drawn-card .card-kicker { font-size: 7px; letter-spacing: 0.035em; }
+  .card-face { padding: 18px; }
+  .drawn-card-content { padding: 12px 0; }
+  .drawn-card-eyebrow { margin-bottom: 9px; font-size: 9px; }
+  .drawn-card-content h1 { margin-bottom: 12px; font-size: 23px; }
+  .drawn-card-content p { font-size: 11px; line-height: 1.75; }
+  .drawn-card-footer { padding-top: 9px; font-size: 8px; }
+}
+
+@media (max-height: 430px) and (min-width: 621px) {
+  .journey-center { width: calc((100svh - 88px) * 0.7); }
+  .journey-controls { left: auto; max-width: 150px; flex-direction: column; align-items: stretch; }
+  .journey-controls .primary-button { min-width: 135px; padding: 0 15px; gap: 15px; }
+  .journey-secondary { min-width: 135px; }
+  .journey-action-row { flex-direction: column; align-items: stretch; }
+  .journey-hint { right: 0; bottom: calc(100% + 12px); left: 0; }
+  .journey-stack .deck-card-copy strong { font-size: 19px; }
+  .drawn-card-content h1 { margin-bottom: 9px; font-size: 21px; }
+  .drawn-card-content p { font-size: 10px; line-height: 1.65; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journey-scene *,
+  .journey-scene *::before,
+  .journey-scene *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
+
+  .journey-scene[data-phase="centering"] .journey-stack-motion { transform: none; }
+  .journey-scene[data-phase="ritual"] .journey-stack { opacity: 1; transform: none; filter: none; }
+  .journey-scene[data-phase="ritual"] .journey-copy,
+  .journey-scene[data-phase="ritual"] .journey-halo { display: none; }
+
+  .journey-scene .orbit,
+  .journey-scene .art-core::after { animation: none !important; }
+}
