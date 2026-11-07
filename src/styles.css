@@ -1742,6 +1742,22 @@ a.contact-value:hover {
   line-height: inherit;
 }
 
+/* Longer authored prompts need a bounded reading area on smaller screens. */
+.deck-guidance {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+:is(.deck-layout-moving, .deck-layout-focused) .deck-guidance-copy {
+  font-size: clamp(20px, 2vw, 28px);
+  letter-spacing: 0;
+  line-height: 1.65;
+}
+
+.deck-guidance-copy p + p {
+  margin-top: 0.75em;
+}
+
 .deck-guidance p {
   max-width: 310px;
   margin: 0;
@@ -2571,6 +2587,9 @@ a.contact-value:hover {
     padding: clamp(16px, 4svh, 28px) 3px;
     font-family: Georgia, "Songti SC", serif;
     text-align: left;
+    min-height: 0;
+    overflow-y: auto;
+    justify-content: flex-start;
   }
 
   .deck-card-prompt-copy {

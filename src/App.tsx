@@ -12,6 +12,7 @@ import {
 import { orderDeckCards } from './relationshipOrder';
 import { promptTokenDelay, tokenizePrompt } from './promptTyping';
 import promptPinyin from './promptPinyin.json';
+import { selfCards } from './selfCards';
 
 type Card = {
   id: string;
@@ -113,283 +114,6 @@ const relationshipCards: Card[] = [
 
 const allCards = [...cards, ...relationshipCards];
 
-const beginningDeck: Card[] = [
-  {
-    id: 'begin-self-gaze',
-    index: '01',
-    name: '观看自己',
-    subtitle: 'SELF GAZE',
-    description:
-      '脱掉一件衣物，或者松开一处让身体感到束缚的地方。———如果你已经一丝不挂，缓慢呼吸三次，注意空气接触皮肤时，哪里最先有感觉。',
-    accent: '#f0b84b',
-    soft: '#fff3d8',
-    ink: '#5f4000',
-  },
-  {
-    id: 'begin-arousal',
-    index: '02',
-    name: '回想兴奋',
-    subtitle: 'AROUSAL',
-    description: '最近最令你性兴奋的时刻是什么？这个时刻里的什么在吸引着你？',
-    accent: '#f0b84b',
-    soft: '#fff3d8',
-    ink: '#5f4000',
-  },
-  {
-    id: 'begin-touch',
-    index: '03',
-    name: '指尖感知',
-    subtitle: 'TOUCH',
-    description: '用手指轻轻地在内裤上打圈，感受身体作出的反应。此时，你是否有想到某个画面？',
-    accent: '#f0b84b',
-    soft: '#fff3d8',
-    ink: '#5f4000',
-  },
-  {
-    id: 'begin-intensity',
-    index: '04',
-    name: '调节强度',
-    subtitle: 'INTENSITY',
-    description:
-      '在安全和舒服的前提下，只提高一个变量：力度、速度或接触面积。保持两次呼吸，再决定继续、恢复或停止。',
-    accent: '#f0b84b',
-    soft: '#fff3d8',
-    ink: '#5f4000',
-  },
-  {
-    id: 'begin-breathe',
-    index: '05',
-    name: '深度呼吸',
-    subtitle: 'BREATHE',
-    description:
-      '深深地呼吸三次，让空气自由地流入你的身体，慢慢把自己的感知调动起来。每一次都尽量比上一次呼吸得更深，更满。',
-    accent: '#f0b84b',
-    soft: '#fff3d8',
-    ink: '#5f4000',
-  },
-  {
-    id: 'begin-inner-voice',
-    index: '06',
-    name: '内在声音',
-    subtitle: 'INNER VOICE',
-    description:
-      '闭上眼睛，想象有哪一个声音？或者哪一句话可以点燃你的此刻？在心里轻轻地告诉自己。',
-    accent: '#f0b84b',
-    soft: '#fff3d8',
-    ink: '#5f4000',
-  },
-];
-
-const insightDeck: Card[] = [
-  {
-    id: 'insight-unfamiliar-touch',
-    index: '01',
-    name: '陌生触碰',
-    subtitle: 'UNFAMILIAR TOUCH',
-    description:
-      '用不常使用的那只手触碰身体。留意这一只手带来的陌生感、笨拙感或新的刺激。',
-    accent: '#8c79dc',
-    soft: '#eeeaff',
-    ink: '#3d2c7a',
-  },
-  {
-    id: 'insight-full-attention',
-    index: '02',
-    name: '充分关注',
-    subtitle: 'FULL ATTENTION',
-    description:
-      '想象自己同时被来自不同方向的目光、声音或触碰包围，观察身体对“被充分关注”的感觉有没有回应。',
-    accent: '#8c79dc',
-    soft: '#eeeaff',
-    ink: '#3d2c7a',
-  },
-  {
-    id: 'insight-close-distance',
-    index: '03',
-    name: '亲密距离',
-    subtitle: 'CLOSE DISTANCE',
-    description:
-      '想象一个狭小但安全的空间，身体与另一个存在靠得很近。注意空间带来的急迫感、包裹感或限制感。你希望距离更近还是更远？',
-    accent: '#8c79dc',
-    soft: '#eeeaff',
-    ink: '#3d2c7a',
-  },
-  {
-    id: 'insight-lingering-traces',
-    index: '04',
-    name: '轨迹停留',
-    subtitle: 'LINGERING TRACES',
-    description:
-      '用指尖在皮肤上画三个圆，再画三条短线。可以选择胸口、腹部、大腿或私密部位。哪种轨迹让感觉停留得更久？',
-    accent: '#8c79dc',
-    soft: '#eeeaff',
-    ink: '#3d2c7a',
-  },
-  {
-    id: 'insight-secret-scene',
-    index: '05',
-    name: '秘密场景',
-    subtitle: 'SECRET SCENE',
-    description:
-      '想象一个你一直有所好奇的亲密场景。想象里完全安全、不会被发现，也不会影响任何人。吸引你的更像是地点、秘密感，还是脱离日常的感觉？',
-    accent: '#8c79dc',
-    soft: '#eeeaff',
-    ink: '#3d2c7a',
-  },
-];
-
-const courageDeck: Card[] = [
-  {
-    id: 'courage-adventure',
-    index: '01',
-    name: '冒险想象',
-    subtitle: 'ADVENTURE',
-    description:
-      '想象一个你最有欲望的性冒险，如果可以，你最想和谁一起开始这场冒险？如果是和自己，你会愿意在什么情况下开始这场冒险？',
-    accent: '#e77962',
-    soft: '#ffebe6',
-    ink: '#72291b',
-  },
-  {
-    id: 'courage-mirror-pose',
-    index: '02',
-    name: '镜中姿态',
-    subtitle: 'MIRROR POSE',
-    description:
-      '面对镜子，用一个你认为自己最性感的姿势拍一张照片。你最后可以选择留下，或者删除它，都没关系',
-    accent: '#e77962',
-    soft: '#ffebe6',
-    ink: '#72291b',
-  },
-  {
-    id: 'courage-body-desire',
-    index: '03',
-    name: '身体所想',
-    subtitle: 'BODY DESIRE',
-    description:
-      '将手放在你的大腿内侧，感受你的身体，你接下来想要什么？向内移动？或是静谧的停顿？现在，你可以满足它。',
-    accent: '#e77962',
-    soft: '#ffebe6',
-    ink: '#72291b',
-  },
-  {
-    id: 'courage-three-pressures',
-    index: '04',
-    name: '三种力度',
-    subtitle: 'THREE PRESSURES',
-    description:
-      '在同一位置分别尝试轻、适中、稍重三种力度，每种保持两次呼吸。身体在哪一次触碰中更想靠近？',
-    accent: '#e77962',
-    soft: '#ffebe6',
-    ink: '#72291b',
-  },
-  {
-    id: 'courage-another-self',
-    index: '05',
-    name: '另一个身份',
-    subtitle: 'ANOTHER SELF',
-    description:
-      '闭上眼睛，想象自己换了一个名字、一种身份或一种说话方式。身体变得更放松、更有力量，还是没有变化？',
-    accent: '#e77962',
-    soft: '#ffebe6',
-    ink: '#72291b',
-  },
-];
-
-const balanceDeck: Card[] = [
-  {
-    id: 'balance-self-gaze',
-    index: '01',
-    name: '观看自己',
-    subtitle: 'SELF GAZE',
-    description:
-      '再脱掉一件衣物。————如果你已经一丝不挂，深深地呼吸，放松你的肩膀，面部肌肉，和四肢。',
-    accent: '#64aa8e',
-    soft: '#e4f5ee',
-    ink: '#1f5946',
-  },
-  {
-    id: 'balance-body-focus',
-    index: '02',
-    name: '身体焦点',
-    subtitle: 'BODY FOCUS',
-    description:
-      '想象你的嘴唇，腰腹，手臂内侧，脖颈——有手指轻轻地抚过，最让你在意的部位是哪里？',
-    accent: '#64aa8e',
-    soft: '#e4f5ee',
-    ink: '#1f5946',
-  },
-  {
-    id: 'balance-approach',
-    index: '03',
-    name: '靠近与离开',
-    subtitle: 'ANTICIPATION',
-    description:
-      '让手缓慢靠近一个敏感位置，在真正碰到之前停下，再移开。重复几次，感受身体的期待。',
-    accent: '#64aa8e',
-    soft: '#e4f5ee',
-    ink: '#1f5946',
-  },
-  {
-    id: 'balance-rising-sensation',
-    index: '04',
-    name: '感受起伏',
-    subtitle: 'RISING SENSATION',
-    description:
-      '在安全和舒服的前提下，只提高力度、速度或接触面积中的一个。保持两次呼吸，最后缓缓覆盖那个敏感位置。体会此时身体的起伏。',
-    accent: '#64aa8e',
-    soft: '#e4f5ee',
-    ink: '#1f5946',
-  },
-  {
-    id: 'balance-rhythm',
-    index: '05',
-    name: '掌握节奏',
-    subtitle: 'RHYTHM',
-    description:
-      '想象一个亲密场景，先让自己掌握节奏，再让对方掌握节奏。分别停留几次呼吸。哪一种安排让身体更有感觉？放轻松，你可以不用回答。',
-    accent: '#64aa8e',
-    soft: '#e4f5ee',
-    ink: '#1f5946',
-  },
-  {
-    id: 'balance-private-words',
-    index: '06',
-    name: '私密表达',
-    subtitle: 'PRIVATE WORDS',
-    description:
-      '在备忘录里写下你能想到的最下流的话，不要有所保留，但也不要发出去。',
-    accent: '#64aa8e',
-    soft: '#e4f5ee',
-    ink: '#1f5946',
-  },
-];
-
-const newMoonDeck: Card[] = [
-  {
-    id: 'new-moon-return',
-    index: '01',
-    name: '回到日常',
-    subtitle: 'RETURN',
-    description:
-      '最后，你可以观察周围一个物品的轮廓，慢慢连接周围的环境，走进日常。',
-    accent: '#5f8fc5',
-    soft: '#e6f1fb',
-    ink: '#214c79',
-  },
-  {
-    id: 'new-moon-resistance',
-    index: '02',
-    name: '看见阻力',
-    subtitle: 'RESISTANCE',
-    description:
-      '这次旅程让你觉得最有阻力的时刻是什么？不用深入，只是看见ta',
-    accent: '#5f8fc5',
-    soft: '#e6f1fb',
-    ink: '#214c79',
-  },
-];
-
 function createPlaceholderDeck(deck: Card): Card[] {
   const isRelationship = relationshipCards.some((item) => item.id === deck.id);
   return Array.from({ length: isRelationship ? 10 : 5 }, (_, cardIndex) => {
@@ -409,31 +133,23 @@ function createPlaceholderDeck(deck: Card): Card[] {
   });
 }
 
-const deckCardsById: Record<string, Card[]> = {
-  begin: beginningDeck,
-  insight: insightDeck,
-  courage: courageDeck,
-  balance: balanceDeck,
-  'new-moon': newMoonDeck,
-};
+const deckCardsById: Record<string, Card[]> = Object.fromEntries(
+  cards.map((group) => [group.id, selfCards.filter((item) => item.group === group.id).map((item) => ({
+    ...group,
+    id: `self-card-${item.number}`,
+    index: String(item.number).padStart(2, '0'),
+    name: `卡牌 ${String(item.number).padStart(2, '0')}`,
+    subtitle: group.subtitle,
+    description: item.text,
+  }))]),
+);
 
 function getDeckCards(card: Card) {
   return deckCardsById[card.id] ?? createPlaceholderDeck(card);
 }
 
 function splitCardPrompt(text: string) {
-  const dashParts = text.split(/—+/u).map((part) => part.trim()).filter(Boolean);
-  if (dashParts.length > 1) return dashParts;
-
-  const sentenceParts = text.match(/[^。！？]+[。！？]?/gu)?.map((part) => part.trim()).filter(Boolean) ?? [];
-  if (sentenceParts.length > 1) return sentenceParts;
-
-  const commaIndex = text.indexOf('，');
-  if (commaIndex > 0) {
-    return [text.slice(0, commaIndex + 1), text.slice(commaIndex + 1)].map((part) => part.trim());
-  }
-
-  return [text];
+  return text.split('\n');
 }
 
 function ProgressiveCardPrompt({
@@ -1004,7 +720,7 @@ function LandingDeck({
           <div className="use-copy">
             <span className="eyebrow">当前卡牌</span>
             <h2>准备使用「{card.name}」</h2>
-            <p>确认后，这张卡牌将带你进入对应的五张卡牌卡组。</p>
+            <p>确认后，这张卡牌将带你进入自我探索旅程。</p>
             <button className="primary-button use-button" type="button" tabIndex={-1}>
               使用这张卡牌 <span aria-hidden="true">↗</span>
             </button>
@@ -1288,7 +1004,7 @@ function Deck({ card, onReturn }: { card: Card; onReturn: () => void }) {
             <div className="deck-guidance-copy">
               <ProgressiveCardPrompt
                 key={`guidance-${cardMotion}`}
-                parts={[activeCard.description]}
+                parts={promptParts}
                 revealed={layoutPhase === 'focused'}
               />
             </div>
@@ -1753,7 +1469,9 @@ function AppContent() {
             <p>
               {used
                 ? '正在为你开启这组卡牌……'
-                : `确认后，这张卡牌将带你进入对应的${relationshipCards.some((item) => item.id === selectedCard.id) ? '十张' : '多张'}卡牌卡组。`}
+                : selectedCard.id === 'new-moon'
+                  ? '新月模块暂时没有卡牌，将从启程模块开始旅程。'
+                  : `确认后，这张卡牌将带你进入对应的${relationshipCards.some((item) => item.id === selectedCard.id) ? '十张' : '多张'}卡牌卡组。`}
             </p>
             <button
               className="primary-button use-button"
