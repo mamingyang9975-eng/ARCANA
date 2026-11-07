@@ -37,6 +37,48 @@ button:focus-visible {
   outline-offset: 4px;
 }
 
+.intro-home {
+  animation: introHomeFade 750ms 2250ms ease both;
+}
+
+.intro-screen {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #fff;
+  color: #000;
+  animation: introScreenFade 750ms 2250ms ease both;
+}
+
+.intro-screen p {
+  margin: 0;
+  font-family: Georgia, "Songti SC", serif;
+  font-size: clamp(22px, 5vw, 30px);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  animation: introWordsFade 3s ease both;
+}
+
+@keyframes introWordsFade {
+  0% { opacity: 0; }
+  25%, 75% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes introScreenFade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes introHomeFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .landing-page,
 .select-page,
 .use-page,
@@ -1692,8 +1734,8 @@ a.contact-value:hover {
 }
 
 :is(.deck-layout-moving, .deck-layout-focused) .deck-actions {
-  left: 50%;
-  width: min(52vw, 560px);
+  left: 63%;
+  width: min(66vw, 1200px);
 }
 
 .deck-layout-exiting .deck-actions {
@@ -1733,13 +1775,27 @@ a.contact-value:hover {
   font-size: clamp(60px, 5.8vw, 88px);
 }
 
-.deck-guidance-copy p {
+.deck-guidance .deck-guidance-copy p {
   max-width: none;
   margin: 0;
   color: inherit;
   font: inherit;
   letter-spacing: inherit;
   line-height: inherit;
+}
+
+.deck-guidance {
+  min-height: 0;
+}
+
+:is(.deck-layout-moving, .deck-layout-focused) .deck-guidance-copy {
+  font-size: clamp(20px, 2vw, 28px);
+  letter-spacing: 0;
+  line-height: 1.65;
+}
+
+.deck-guidance-copy p + p {
+  margin-top: 0.75em;
 }
 
 .deck-guidance p {
@@ -2198,8 +2254,8 @@ a.contact-value:hover {
   }
 
   :is(.deck-layout-moving, .deck-layout-focused) .deck-actions {
-    left: 52%;
-    width: min(55vw, 500px);
+    left: 64%;
+    width: 66vw;
   }
 }
 
@@ -2518,7 +2574,7 @@ a.contact-value:hover {
     position: relative;
     top: auto;
     left: auto;
-    width: min(76vw, 280px);
+    width: 100%;
     justify-self: center;
     transform: none;
   }
@@ -2571,6 +2627,8 @@ a.contact-value:hover {
     padding: clamp(16px, 4svh, 28px) 3px;
     font-family: Georgia, "Songti SC", serif;
     text-align: left;
+    min-height: 0;
+    justify-content: flex-start;
   }
 
   .deck-card-prompt-copy {
