@@ -4,9 +4,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
-  type PointerEvent as ReactPointerEvent,
   type TouchEvent as ReactTouchEvent,
-  type TransitionEvent as ReactTransitionEvent,
   type WheelEvent as ReactWheelEvent,
 } from 'react';
 import { orderDeckCards } from './relationshipOrder';
@@ -26,31 +24,9 @@ type Card = {
   fixedAtEnd?: boolean;
 };
 
-type Screen = 'landing' | 'select' | 'use' | 'journey' | 'deck';
+type Screen = 'select' | 'use' | 'journey' | 'deck';
 
-type DeckOrigin = {
-  top: number;
-  left: number;
-  width: number;
-};
-
-type CardSpreadTransform = {
-  x: number;
-  y: number;
-  scale: number;
-  rotation: number;
-};
-
-type SpreadPhase = 'idle' | 'measuring' | 'ready' | 'spreading';
-type HoldPhase = 'idle' | 'holding' | 'gathering';
-type LandingExitPhase = 'idle' | 'fading' | 'lifting' | 'moving';
 type DeckLayoutPhase = 'showcase' | 'moving' | 'focused' | 'exiting';
-
-type LandingExitTransform = {
-  x: number;
-  y: number;
-  scale: number;
-};
 
 const cards: Card[] = [
   {
@@ -151,7 +127,6 @@ function getDeckCards(card: Card) {
 function splitCardPrompt(text: string) {
   return text.split('\n');
 }
-
 function ProgressiveCardPrompt({
   parts,
   revealed = true,
@@ -479,255 +454,6 @@ function MusicControl() {
         </span>
       </button>
     </div>
-  );
-}
-
-function LandingDeck({
-  card,
-  onContinue,
-  onExpand,
-}: {
-  card: Card;
-  onContinue: () => void;
-  onExpand: (origin: DeckOrigin) => void;
-}) {
-  const [holdPhase, setHoldPhase] = useState<HoldPhase>('idle');
-  const [exitPhase, setExitPhase] = useState<LandingExitPhase>('idle');
-  const [exitTransform, setExitTransform] = useState<LandingExitTransform>({
-    x: 0,
-    y: 0,
-    scale: 1,
-  });
-  const stackRef = useRef<HTMLDivElement | null>(null);
-  const frontCardRef = useRef<HTMLElement | null>(null);
-  const useTargetRef = useRef<HTMLDivElement | null>(null);
-  const pressTimer = useRef<number | null>(null);
-  const gatherTimer = useRef<number | null>(null);
-  const exitTimers = useRef<number[]>([]);
-  const longPressTriggered = useRef(false);
-  const continueTransitionFinished = useRef(false);
-
-  function clearPressTimer() {
-    if (pressTimer.current !== null) {
-      window.clearTimeout(pressTimer.current);
-      pressTimer.current = null;
-    }
-  }
-
-  function clearGatherTimer() {
-    if (gatherTimer.current !== null) {
-      window.clearTimeout(gatherTimer.current);
-      gatherTimer.current = null;
-    }
-  }
-
-  function clearExitTimers() {
-    exitTimers.current.forEach((timer) => window.clearTimeout(timer));
-    exitTimers.current = [];
-  }
-
-  function queueExitStep(callback: () => void, delay: number) {
-    const timer = window.setTimeout(callback, delay);
-    exitTimers.current.push(timer);
-  }
-
-  useEffect(() => {
-    return () => {
-      clearPressTimer();
-      clearGatherTimer();
-      clearExitTimers();
-    };
-  }, []);
-
-  function startPress(event: ReactPointerEvent<HTMLButtonElement>) {
-    if (exitPhase !== 'idle') return;
-    if (event.pointerType === 'mouse' && event.button !== 0) return;
-
-    clearPressTimer();
-    clearGatherTimer();
-    longPressTriggered.current = false;
-    setHoldPhase('holding');
-    pressTimer.current = window.setTimeout(() => {
-      pressTimer.current = null;
-      longPressTriggered.current = true;
-      const stackBounds = stackRef.current?.getBoundingClientRect();
-      const origin = {
-        top: stackBounds?.top ?? window.innerHeight / 2,
-        left: stackBounds?.left ?? window.innerWidth / 2,
-        width: stackBounds?.width ?? 280,
-      };
-      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      setHoldPhase('gathering');
-      gatherTimer.current = window.setTimeout(() => {
-        gatherTimer.current = null;
-        onExpand(origin);
-      }, reduceMotion ? 30 : 220);
-    }, 620);
-  }
-
-  function endPress() {
-    if (longPressTriggered.current) return;
-    clearPressTimer();
-    setHoldPhase('idle');
-  }
-
-  function beginContinueTransition() {
-    if (exitPhase !== 'idle') return;
-
-    clearPressTimer();
-    clearGatherTimer();
-    continueTransitionFinished.current = false;
-
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const sourceBounds = frontCardRef.current?.getBoundingClientRect();
-    const targetBounds = useTargetRef.current?.getBoundingClientRect();
-
-    if (reduceMotion || !sourceBounds || !targetBounds) {
-      onContinue();
-      return;
-    }
-
-    setExitTransform({
-      x: targetBounds.left + targetBounds.width / 2 - (sourceBounds.left + sourceBounds.width / 2),
-      y: targetBounds.top + targetBounds.height / 2 - (sourceBounds.top + sourceBounds.height / 2),
-      scale: targetBounds.width / sourceBounds.width,
-    });
-    setExitPhase('fading');
-
-    queueExitStep(() => setExitPhase('lifting'), 260);
-    queueExitStep(() => setExitPhase('moving'), 500);
-    queueExitStep(finishContinueTransition, 1600);
-  }
-
-  function finishContinueTransition() {
-    if (continueTransitionFinished.current) return;
-
-    continueTransitionFinished.current = true;
-    clearExitTimers();
-    onContinue();
-  }
-
-  function finishContinueAfterCardMovement(event: ReactTransitionEvent<HTMLElement>) {
-    if (
-      exitPhase === 'moving' &&
-      event.target === event.currentTarget &&
-      event.propertyName === 'transform' &&
-      event.elapsedTime >= 0.75
-    ) {
-      finishContinueTransition();
-    }
-  }
-
-  function continueJourney() {
-    if (longPressTriggered.current) {
-      longPressTriggered.current = false;
-      return;
-    }
-    beginContinueTransition();
-  }
-
-  return (
-    <main
-      className={`landing-page ${exitPhase !== 'idle' ? 'is-exiting' : ''} exit-${exitPhase}`}
-      style={cardStyle(card)}
-    >
-      <header className="topbar landing-topbar">
-        <div className="brand">
-          <span className="brand-dot" aria-hidden="true" />
-          <span>ARCANA</span>
-        </div>
-        <span className="brand-mark">今日旅程</span>
-        <div className="topbar-meta">
-          <span className="step-label">01 / START</span>
-          <ContactControl />
-        </div>
-      </header>
-
-      <section className="landing-stage" aria-label="从启程牌开始今天的旅程">
-        <div
-          ref={stackRef}
-          className={`landing-card-stack is-${holdPhase} is-exit-${exitPhase}`}
-          style={{
-            '--landing-exit-x': `${exitTransform.x}px`,
-            '--landing-exit-y': `${exitTransform.y}px`,
-            '--landing-exit-scale': exitTransform.scale,
-          } as CSSProperties}
-        >
-          {cards.slice(1).map((stackCard, index) => (
-            <span
-              key={stackCard.id}
-              className="landing-stack-card"
-              style={{
-                ...cardStyle(stackCard),
-                '--stack-depth': index + 1,
-                zIndex: cards.length - index,
-              } as CSSProperties}
-              aria-hidden="true"
-            >
-              <span>{stackCard.index}</span>
-            </span>
-          ))}
-
-          <article
-            ref={frontCardRef}
-            className="active-card landing-front-card"
-            style={cardStyle(card)}
-            onTransitionEnd={finishContinueAfterCardMovement}
-            aria-hidden="true"
-          >
-            <div className="active-card-inner landing-front-inner">
-              <div className="card-kicker">
-                <span>{card.index}</span>
-                <span>{card.subtitle}</span>
-              </div>
-              <CardArtwork card={card} />
-              <div className="active-card-copy">
-                <h1>{card.name}</h1>
-                <p>{card.description}</p>
-              </div>
-            </div>
-          </article>
-
-          <button
-            className="landing-stack-button"
-            type="button"
-            aria-label="点击从启程牌继续；长按展开所有卡牌"
-            onClick={continueJourney}
-            onPointerDown={startPress}
-            onPointerUp={endPress}
-            onPointerCancel={endPress}
-            onPointerLeave={endPress}
-            onContextMenu={(event) => event.preventDefault()}
-            disabled={exitPhase !== 'idle'}
-          />
-        </div>
-
-        <button
-          className="landing-hint"
-          type="button"
-          onClick={beginContinueTransition}
-          disabled={exitPhase !== 'idle'}
-        >
-          点击继续
-        </button>
-      </section>
-
-      <div className="use-page landing-use-target" aria-hidden="true">
-        <div className="topbar use-topbar" />
-        <div className="use-stage">
-          <div ref={useTargetRef} className="active-card" />
-          <div className="use-copy">
-            <span className="eyebrow">当前卡牌</span>
-            <h2>准备使用「{card.name}」</h2>
-            <p>确认后，这张卡牌将带你进入自我探索旅程。</p>
-            <button className="primary-button use-button" type="button" tabIndex={-1}>
-              使用这张卡牌 <span aria-hidden="true">↗</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </main>
   );
 }
 
@@ -1080,15 +806,10 @@ function AppContent() {
   const [journeyEndMessageKey, setJourneyEndMessageKey] = useState(0);
   const [screen, setScreen] = useState<Screen>('select');
   const [used, setUsed] = useState(false);
-  const [arrivingFromLanding, setArrivingFromLanding] = useState(false);
-  const [expansionOrigin, setExpansionOrigin] = useState<DeckOrigin | null>(null);
-  const [spreadPhase, setSpreadPhase] = useState<SpreadPhase>('idle');
-  const [spreadTransforms, setSpreadTransforms] = useState<CardSpreadTransform[]>([]);
   const activationTimer = useRef<number | null>(null);
   const recommendationTipTimer = useRef<number | null>(null);
   const descriptionMessageTimer = useRef<number | null>(null);
   const journeyEndTimer = useRef<number | null>(null);
-  const choiceCardRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const selfGridRef = useRef<HTMLElement | null>(null);
   const relationshipGridRef = useRef<HTMLElement | null>(null);
   const restoringCarouselsRef = useRef(false);
@@ -1103,7 +824,6 @@ function AppContent() {
   const selectedRelationshipCard = relationshipCards.find((card) => card.id === selectedBySection.relationship) ?? relationshipCards[0];
 
   function selectCard(card: Card, section: 'self' | 'relationship') {
-    if (expansionOrigin) return;
     if (carouselScrollRef.current) {
       window.clearTimeout(carouselScrollRef.current.timer);
       carouselScrollRef.current = null;
@@ -1280,55 +1000,10 @@ function AppContent() {
     };
   }, []);
 
-  useLayoutEffect(() => {
-    if (screen !== 'select' || !expansionOrigin) return;
-
-    const compactLayout = window.matchMedia('(max-width: 720px)').matches;
-    const transforms = choiceCardRefs.current.map((element, index) => {
-      if (!element) {
-        return { x: 0, y: 0, scale: 1, rotation: 0 };
-      }
-
-      const target = element.getBoundingClientRect();
-      const selectedLift = cards[index].id === selectedId ? (compactLayout ? -4 : -7) : 0;
-      const stackDepth = index;
-      const stackStepX = compactLayout ? 1.5 : 2;
-      const stackStepY = compactLayout ? 1.5 : 2;
-
-      return {
-        x: expansionOrigin.left + stackDepth * stackStepX - target.left,
-        y: expansionOrigin.top - stackDepth * stackStepY - (target.top - selectedLift),
-        scale: expansionOrigin.width / target.width,
-        rotation: stackDepth === 0 ? 0 : stackDepth * 0.08,
-      };
-    });
-
-    setSpreadTransforms(transforms);
-    setSpreadPhase('ready');
-
-    let secondFrame = 0;
-    const firstFrame = window.requestAnimationFrame(() => {
-      secondFrame = window.requestAnimationFrame(() => setSpreadPhase('spreading'));
-    });
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const completeTimer = window.setTimeout(() => {
-      setSpreadPhase('idle');
-      setSpreadTransforms([]);
-      setExpansionOrigin(null);
-    }, reduceMotion ? 80 : 1540);
-
-    return () => {
-      window.cancelAnimationFrame(firstFrame);
-      window.cancelAnimationFrame(secondFrame);
-      window.clearTimeout(completeTimer);
-    };
-  }, [screen, expansionOrigin, selectedId]);
-
   function openCard(card = selectedCard) {
     setSelectedId(card.id);
     setActiveSection(relationshipCards.some((item) => item.id === card.id) ? 'relationship' : 'self');
     setUsed(false);
-    setArrivingFromLanding(false);
     setScreen('use');
   }
 
@@ -1389,21 +1064,6 @@ function AppContent() {
     }, 3000);
   }
 
-  function startFromBeginning() {
-    setSelectedId(cards[0].id);
-    setSelectedBySection((current) => ({ ...current, self: cards[0].id }));
-    setUsed(false);
-    setArrivingFromLanding(true);
-    setScreen('use');
-  }
-
-  function expandDeck(origin: DeckOrigin) {
-    setSpreadTransforms([]);
-    setExpansionOrigin(origin);
-    setSpreadPhase('measuring');
-    setScreen('select');
-  }
-
   function returnToCards() {
     if (activationTimer.current !== null) {
       window.clearTimeout(activationTimer.current);
@@ -1434,7 +1094,7 @@ function AppContent() {
   if (screen === 'use') {
     return (
       <main
-        className={`use-page ${arrivingFromLanding ? 'is-landing-arrival' : ''}`}
+        className="use-page"
         style={cardStyle(selectedCard)}
       >
         <header className="topbar use-topbar">
@@ -1488,19 +1148,9 @@ function AppContent() {
     );
   }
 
-  if (screen === 'landing') {
-    return (
-      <LandingDeck
-        card={cards[0]}
-        onContinue={startFromBeginning}
-        onExpand={expandDeck}
-      />
-    );
-  }
-
   return (
     <main
-      className={`select-page section-${activeSection} ${expansionOrigin ? 'is-deck-expanding' : ''} spread-${spreadPhase}`}
+      className={`select-page section-${activeSection}`}
     >
       <header className="topbar" inert={directoryOpen}>
         <div className="brand">
@@ -1530,32 +1180,16 @@ function AppContent() {
       </section>
 
       <section ref={selfGridRef} className="card-grid" aria-label="自我探索卡组" onScroll={(event) => syncCarouselSelection(event.currentTarget, 'self', cards)}>
-        {cards.map((card, index) => {
+        {cards.map((card) => {
           const selected = card.id === selectedBySection.self;
-          const spreadTransform = spreadTransforms[index];
           const isShowingDescription =
             card.id === descriptionMessageCardId && descriptionMessageKey > 0;
 
           return (
             <button
               key={card.id}
-              ref={(element) => {
-                choiceCardRefs.current[index] = element;
-              }}
-              className={`choice-card ${selected ? 'is-selected' : ''} ${spreadTransform ? 'is-from-stack' : ''}`}
-              style={{
-                ...cardStyle(card),
-                ...(spreadTransform
-                  ? {
-                      '--spread-x': `${spreadTransform.x}px`,
-                      '--spread-y': `${spreadTransform.y}px`,
-                      '--spread-scale': spreadTransform.scale,
-                      '--spread-rotation': `${spreadTransform.rotation}deg`,
-                      '--spread-order': index,
-                      zIndex: index === 0 ? 10 : cards.length - index,
-                    }
-                  : {}),
-              } as CSSProperties}
+              className={`choice-card ${selected ? 'is-selected' : ''}`}
+              style={cardStyle(card)}
               type="button"
               aria-pressed={selected}
               aria-describedby={
@@ -1567,11 +1201,9 @@ function AppContent() {
                     ? 'journey-end-message'
                   : undefined
               }
-              aria-disabled={Boolean(expansionOrigin)}
-              tabIndex={expansionOrigin ? -1 : undefined}
               onClick={() => selectCard(card, 'self')}
               onDoubleClick={() => {
-                if (!expansionOrigin && card.id !== 'new-moon') openCard(card);
+                if (card.id !== 'new-moon') openCard(card);
               }}
             >
               {card.id === 'begin' && (
@@ -1686,9 +1318,26 @@ function AppContent() {
 }
 
 export default function App() {
+  const [showIntro, setShowIntro] = useState(() => (
+    !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ));
+
+  useEffect(() => {
+    if (!showIntro) return undefined;
+    const timer = window.setTimeout(() => setShowIntro(false), 3000);
+    return () => window.clearTimeout(timer);
+  }, [showIntro]);
+
   return (
     <>
-      <AppContent />
+      <div className={showIntro ? 'intro-home' : undefined} inert={showIntro}>
+        <AppContent />
+      </div>
+      {showIntro && (
+        <div className="intro-screen" role="status">
+          <p>关于自己，关于关系</p>
+        </div>
+      )}
     </>
   );
 }
